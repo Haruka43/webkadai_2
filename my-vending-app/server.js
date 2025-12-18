@@ -1,72 +1,147 @@
 import { DB } from 'https://deno.land/x/sqlite/mod.ts';
 import { serve } from 'https://deno.land/std@0.140.0/http/server.ts';
 
-// 1. データベースの準備（ファイルがあれば読み込み、なければ作る）
 const db = new DB('vending.db');
 
-// テーブルがなければ作る
 db.query(`
   CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     price INTEGER,
-    stock INTEGER
+    stock INTEGER,
+    image TEXT
   )
 `);
 
-// もし中身が空っぽなら、テスト用の商品を入れる
 const count = db.query('SELECT COUNT(*) FROM products')[0][0];
 if (count === 0) {
-  db.query('INSERT INTO products (name, price, stock) VALUES (?, ?, ?)', ['コカ・コーラ', 160, 5]);
-  db.query('INSERT INTO products (name, price, stock) VALUES (?, ?, ?)', ['綾鷹', 150, 10]);
-  db.query('INSERT INTO products (name, price, stock) VALUES (?, ?, ?)', ['レッドブル', 210, 3]);
-  console.log('初期データをデータベースに入れました！');
+  console.log('初期データを投入します...');
+
+  // ファイル名（drink1〜12）に合わせて修正しました！
+  // ※ drink10だけ jpeg になっていたので合わせています
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'あったか〜いお茶',
+    130,
+    10,
+    'drink1.png'
+  ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'ジャスミンティー',
+    140,
+    8,
+    'drink2.png'
+  ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'クラシックコーラ',
+    160,
+    5,
+    'drink3.png'
+  ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'オレンジジュース',
+    150,
+    12,
+    'drink4.png'
+  ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'ひやしあめ',
+    180,
+    3,
+    'drink5.png'
+  ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    '三ツ矢サイダー風',
+    150,
+    15,
+    'drink6.png'
+  ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'とろけるピーチ',
+    170,
+    7,
+    'drink7.png'
+  ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'つめた〜いお水',
+    110,
+    24,
+    'drink8.png'
+  ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    '濃厚乳酸菌',
+    200,
+    4,
+    'drink9.png'
+  ]);
+
+  // スクショで見たら drink10 だけ jpeg でした
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'ブラックコーヒー',
+    140,
+    10,
+    'drink10.jpeg'
+  ]);
+
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'ミネラルウォーター',
+    100,
+    20,
+    'drink11.png'
+  ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
+    'マミー風ドリンク',
+    160,
+    6,
+    'drink12.png'
+  ]);
+
+  console.log('初期データを入れました！');
 }
 
-console.log('サーバーが起動しました！ http://localhost:8000 にアクセスしてください');
+console.log('サーバーが起動しました！ http://localhost:8000');
 
-// 2. リクエストを受け取る部分
 serve(async (req) => {
   const url = new URL(req.url);
 
-  // API: 商品一覧を返す
   if (url.pathname === '/api/products' && req.method === 'GET') {
     const rows = db.query('SELECT * FROM products');
-    const products = rows.map(([id, name, price, stock]) => ({ id, name, price, stock }));
-    return new Response(JSON.stringify(products), {
-      headers: { 'content-type': 'application/json' }
-    });
+    const products = rows.map(([id, name, price, stock, image]) => ({ id, name, price, stock, image }));
+    return new Response(JSON.stringify(products), { headers: { 'content-type': 'application/json' } });
   }
 
-  // API: 購入処理（在庫を減らす）
   if (url.pathname === '/api/purchase' && req.method === 'POST') {
     try {
-      const body = await req.json(); // 送られてきたデータ { id: 1 }
-
-      // 在庫チェック
+      const body = await req.json();
       const check = db.query('SELECT stock FROM products WHERE id = ?', [body.id]);
-      if (check.length === 0) return new Response('商品がない', { status: 404 });
-      if (check[0][0] <= 0) return new Response('売り切れ', { status: 400 });
-
-      // 在庫を1つ減らす
+      if (check.length === 0) return new Response('Not Found', { status: 404 });
+      if (check[0][0] <= 0) return new Response('Sold Out', { status: 400 });
       db.query('UPDATE products SET stock = stock - 1 WHERE id = ?', [body.id]);
       return new Response(JSON.stringify({ status: 'success' }));
-    } catch (e) {
-      return new Response('エラー', { status: 500 });
+    } catch {
+      return new Response('Error', { status: 500 });
     }
   }
 
-  // HTMLやCSSファイルを返す処理（変更不要）
+  if (url.pathname === '/api/restock' && req.method === 'POST') {
+    try {
+      const body = await req.json();
+      db.query('UPDATE products SET stock = stock + ? WHERE id = ?', [body.amount, body.id]);
+      return new Response(JSON.stringify({ status: 'success' }));
+    } catch {
+      return new Response('Error', { status: 500 });
+    }
+  }
+
   try {
     const path = url.pathname === '/' ? '/index.html' : url.pathname;
     const file = await Deno.readFile(`./public${path}`);
-
-    // 拡張子に応じたContent-Typeを設定
     const headers = {};
     if (path.endsWith('.html')) headers['content-type'] = 'text/html';
     if (path.endsWith('.css')) headers['content-type'] = 'text/css';
     if (path.endsWith('.js')) headers['content-type'] = 'text/javascript';
-
+    if (path.endsWith('.png')) headers['content-type'] = 'image/png';
+    if (path.endsWith('.jpg')) headers['content-type'] = 'image/jpeg';
+    if (path.endsWith('.jpeg')) headers['content-type'] = 'image/jpeg';
     return new Response(file, { headers });
   } catch {
     return new Response('404 Not Found', { status: 404 });

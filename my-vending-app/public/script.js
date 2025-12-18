@@ -6,16 +6,18 @@ async function loadProducts() {
     const products = await response.json();
 
     const container = document.getElementById('product-list');
-    container.innerHTML = ''; // 「読み込み中...」を消す
+    container.innerHTML = '';
 
     products.forEach((product) => {
-      // 在庫があるかチェック
       const isSoldOut = product.stock <= 0;
 
       const div = document.createElement('div');
       div.className = 'product-item';
+
+      // ★ここが重要！画像を表示するタグを追加しました
       div.innerHTML = `
             <div class="product-info">
+                <img src="${product.image}" alt="${product.name}" class="product-img">
                 <h3>${product.name}</h3>
                 <p class="price">${product.price}円</p>
                 <p class="stock ${isSoldOut ? 'red' : ''}">
@@ -30,7 +32,7 @@ async function loadProducts() {
     });
   } catch (e) {
     console.error(e);
-    document.getElementById('product-list').innerHTML = '<p>サーバーと通信できませんでした😢</p>';
+    document.getElementById('product-list').innerHTML = '<p>読み込みエラー😢</p>';
   }
 }
 
@@ -46,11 +48,10 @@ async function buy(id) {
 
   if (res.ok) {
     alert('ガシャン！購入しました！');
-    loadProducts(); // 画面を更新して在庫を減らす
+    loadProducts();
   } else {
     alert('エラー：売り切れかシステムエラーです');
   }
 }
 
-// 最初に1回実行
 loadProducts();
