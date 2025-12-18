@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>在庫管理システム - Smart Vendor</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* 管理画面用の追加デザイン */
+      body {
+        background-color: #333;
+      } /* 裏方っぽい色 */
+      .admin-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      input {
+        width: 60px;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+      .restock-btn {
+        background-color: #27ae60; /* 緑色 */
+      }
+      .restock-btn:hover {
+        background-color: #2ecc71;
+      }
+      .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        color: #3498db;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 在庫管理画面</h1>
+      <div id="admin-list" class="vending-machine"></div>
+      <a href="/" class="back-link">← お客さん画面に戻る</a>
+    </div>
+
+    <script>
+      // 商品読み込み
+      async function loadAdminProducts() {
+        const res = await fetch('/api/products');
+        const products = await res.json();
+        const container = document.getElementById('admin-list');
+        container.innerHTML = '';
+
+        products.forEach((p) => {
+          const div = document.createElement('div');
+          div.className = 'product-item';
+          div.innerHTML = `
+                    <h3>${p.name}</h3>
+                    <p>現在: <strong>${p.stock}</strong> 個</p>
+                    <div class="admin-controls">
+                        <input type="number" id="amount-${p.id}" value="5" min="1">
+                        <button class="restock-btn" onclick="restock(${p.id})">補充</button>
+                    </div>
+                `;
+          container.appendChild(div);
+        });
+      }
+
+      // 補充処理
+      async function restock(id) {
+        const amountInput = document.getElementById(`amount-${id}`);
+        const amount = parseInt(amountInput.value);
+
+        const res = await fetch('/api/restock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id, amount: amount })
+        });
+
+        if (res.ok) {
+          alert('補充しました！');
+          loadAdminProducts(); // 表示を更新
+        }
+      }
+
+      loadAdminProducts();
+    </script>
+  </body>
+</html>

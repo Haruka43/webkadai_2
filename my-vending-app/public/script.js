@@ -1,33 +1,37 @@
 // 画面が開いたら商品を読み込む
 async function loadProducts() {
-  const response = await fetch('/api/products');
-  const products = await response.json();
+  try {
+    const response = await fetch('/api/products');
+    if (!response.ok) throw new Error('通信エラー');
+    const products = await response.json();
 
-  const container = document.getElementById('product-list');
-  container.innerHTML = ''; // クリア
+    const container = document.getElementById('product-list');
+    container.innerHTML = ''; // 「読み込み中...」を消す
 
-  products.forEach((product) => {
-    // HTMLを作る
-    const div = document.createElement('div');
-    div.className = 'product-item';
+    products.forEach((product) => {
+      // 在庫があるかチェック
+      const isSoldOut = product.stock <= 0;
 
-    // 在庫があるかチェック
-    const isSoldOut = product.stock <= 0;
-
-    div.innerHTML = `
-        <div class="product-info">
-            <h3>${product.name}</h3>
-            <p class="price">${product.price}円</p>
-            <p class="stock ${isSoldOut ? 'red' : ''}">
-                ${isSoldOut ? '売切' : 'あと ' + product.stock + ' 個'}
-            </p>
-        </div>
-        <button onclick="buy(${product.id})" ${isSoldOut ? 'disabled' : ''}>
-            ${isSoldOut ? '×' : '購入'}
-        </button>
-      `;
-    container.appendChild(div);
-  });
+      const div = document.createElement('div');
+      div.className = 'product-item';
+      div.innerHTML = `
+            <div class="product-info">
+                <h3>${product.name}</h3>
+                <p class="price">${product.price}円</p>
+                <p class="stock ${isSoldOut ? 'red' : ''}">
+                    ${isSoldOut ? '売切' : 'あと ' + product.stock + ' 個'}
+                </p>
+            </div>
+            <button onclick="buy(${product.id})" ${isSoldOut ? 'disabled' : ''}>
+                ${isSoldOut ? '×' : '購入'}
+            </button>
+          `;
+      container.appendChild(div);
+    });
+  } catch (e) {
+    console.error(e);
+    document.getElementById('product-list').innerHTML = '<p>サーバーと通信できませんでした😢</p>';
+  }
 }
 
 // 購入ボタンが押されたら
