@@ -3,86 +3,220 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>在庫管理システム - Smart Vendor</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>Smart Vendor Dashboard</title>
     <style>
-      /* 管理画面用の追加デザイン */
       body {
-        background-color: #333;
-      } /* 裏方っぽい色 */
-      .admin-controls {
+        font-family: sans-serif;
+        background: #f4f7f6;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+      }
+      .dashboard {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      /* 売上パネル */
+      .stats-panel {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      .total-sales-label {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+      .total-sales-value {
+        font-size: 4rem;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+
+      /* コンテンツエリア（2カラム） */
+      .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+      }
+
+      .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+      h2 {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        margin-top: 0;
+      }
+
+      /* 在庫リスト */
+      .stock-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+      }
+      .stock-item {
+        border: 1px solid #eee;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .stock-img {
+        height: 60px;
+        object-fit: contain;
+      }
+      .stock-controls {
         display: flex;
-        gap: 10px;
+        justify-content: center;
+        gap: 5px;
         margin-top: 10px;
       }
-      input {
-        width: 60px;
-        padding: 5px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
+      .btn-add {
+        background: #2ecc71;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
       }
-      .restock-btn {
-        background-color: #27ae60; /* 緑色 */
+      .btn-add:hover {
+        background: #27ae60;
       }
-      .restock-btn:hover {
-        background-color: #2ecc71;
+      .danger {
+        color: #e74c3c;
+        font-weight: bold;
       }
-      .back-link {
+
+      /* 売上履歴リスト */
+      .history-list {
+        list-style: none;
+        padding: 0;
+      }
+      .history-item {
+        border-bottom: 1px solid #eee;
+        padding: 10px 0;
+        font-size: 0.9rem;
+      }
+      .history-time {
+        color: #999;
+        font-size: 0.8rem;
         display: block;
-        text-align: center;
+      }
+
+      .back-link {
+        display: inline-block;
         margin-top: 20px;
-        color: #3498db;
+        text-decoration: none;
+        color: #667eea;
+        font-weight: bold;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>🔧 在庫管理画面</h1>
-      <div id="admin-list" class="vending-machine"></div>
-      <a href="/" class="back-link">← お客さん画面に戻る</a>
+    <div class="dashboard">
+      <div class="stats-panel">
+        <div class="total-sales-label">現在の総売上</div>
+        <div class="total-sales-value">¥<span id="total-sales">0</span></div>
+        <div>今日も一日がんばりましょう！</div>
+      </div>
+
+      <div class="content-grid">
+        <div class="card">
+          <h2>📦 在庫管理センター</h2>
+          <div id="stock-container" class="stock-list"></div>
+        </div>
+
+        <div class="card">
+          <h2>💰 最近の購入</h2>
+          <ul id="history-container" class="history-list">
+            <li>読み込み中...</li>
+          </ul>
+        </div>
+      </div>
+
+      <a href="/" class="back-link">← 自販機画面に戻る</a>
     </div>
 
     <script>
-      // 商品読み込み
-      async function loadAdminProducts() {
-        const res = await fetch('/api/products');
-        const products = await res.json();
-        const container = document.getElementById('admin-list');
-        container.innerHTML = '';
+      // データをまとめて読み込む
+      async function loadDashboard() {
+        // A. 商品データの取得
+        const prodRes = await fetch('/api/products');
+        const products = await prodRes.json();
+        renderStock(products);
 
+        // B. 売上データの取得
+        const salesRes = await fetch('/api/sales');
+        const salesData = await salesRes.json();
+        renderSales(salesData);
+      }
+
+      // 在庫リストの表示
+      function renderStock(products) {
+        const container = document.getElementById('stock-container');
+        container.innerHTML = '';
         products.forEach((p) => {
           const div = document.createElement('div');
-          div.className = 'product-item';
+          div.className = 'stock-item';
           div.innerHTML = `
-                    <h3>${p.name}</h3>
-                    <p>現在: <strong>${p.stock}</strong> 個</p>
-                    <div class="admin-controls">
-                        <input type="number" id="amount-${p.id}" value="5" min="1">
-                        <button class="restock-btn" onclick="restock(${p.id})">補充</button>
+                    <img src="${p.image}" class="stock-img">
+                    <div style="font-weight:bold; margin:5px 0;">${p.name}</div>
+                    <div class="${p.stock < 3 ? 'danger' : ''}">残り: ${p.stock}</div>
+                    <div class="stock-controls">
+                        <button class="btn-add" onclick="restock(${p.id}, 1)">+1</button>
+                        <button class="btn-add" onclick="restock(${p.id}, 5)">+5</button>
                     </div>
                 `;
           container.appendChild(div);
         });
       }
 
-      // 補充処理
-      async function restock(id) {
-        const amountInput = document.getElementById(`amount-${id}`);
-        const amount = parseInt(amountInput.value);
+      // 売上データの表示
+      function renderSales(data) {
+        // 総売上アニメーション
+        document.getElementById('total-sales').innerText = data.total.toLocaleString();
 
-        const res = await fetch('/api/restock', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: id, amount: amount })
-        });
-
-        if (res.ok) {
-          alert('補充しました！');
-          loadAdminProducts(); // 表示を更新
+        // 履歴リスト
+        const list = document.getElementById('history-container');
+        list.innerHTML = '';
+        if (data.history.length === 0) {
+          list.innerHTML = '<li>まだ売上がありません</li>';
+          return;
         }
+        data.history.forEach((h) => {
+          const li = document.createElement('li');
+          li.className = 'history-item';
+          // 日付をきれいに
+          const date = new Date(h.date).toLocaleTimeString();
+          li.innerHTML = `
+                    <span class="history-time">${date}</span>
+                    <strong>${h.name}</strong> が売れました (+¥${h.price})
+                `;
+          list.appendChild(li);
+        });
       }
 
-      loadAdminProducts();
+      // 補充機能
+      async function restock(id, amount) {
+        await fetch('/api/restock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, amount })
+        });
+        loadDashboard(); // 画面更新
+      }
+
+      // 初回読み込み
+      loadDashboard();
+      // 5秒ごとに自動更新（リアルタイム監視っぽくする）
+      setInterval(loadDashboard, 5000);
     </script>
   </body>
 </html>
