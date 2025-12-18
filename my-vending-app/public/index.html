@@ -3,16 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Smart Vendor</title>
+    <title>Realistic Vending Machine</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="container">
-      <h1>🥤 Smart Vendor</h1>
-      <div id="product-list" class="vending-machine">
-        <p>読み込み中...</p>
+    <div class="machine-container">
+      <div class="vending-machine-body">
+        <div class="display-area" id="product-list">
+          <p style="color: white; padding: 20px">読み込み中...</p>
+        </div>
+
+        <div class="control-area">
+          <div class="dispense-slot">
+            <div id="dropped-product"></div>
+          </div>
+
+          <div class="panel-right">
+            <div class="amount-display"><span>￥</span><span id="money-display">0</span></div>
+
+            <div class="coin-slots">
+              <p>お金を入れる</p>
+              <div class="coins">
+                <button onclick="insertCoin(500)" class="coin c500">500</button>
+                <button onclick="insertCoin(100)" class="coin c100">100</button>
+                <button onclick="insertCoin(50)" class="coin c50">50</button>
+                <button onclick="insertCoin(10)" class="coin c10">10</button>
+              </div>
+              <button onclick="returnMoney()" class="return-btn">おつり・返却</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
     <script src="script.js"></script>
   </body>
 </html>
