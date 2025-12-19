@@ -18,18 +18,18 @@ db.query(
 const count = db.query('SELECT COUNT(*) FROM products')[0][0];
 if (count === 0) {
   const items = [
-    ['あったか〜いお茶', 130, 10, 'drink1.png'],
-    ['ジャスミンティー', 140, 8, 'drink2.png'],
-    ['クラシックコーラ', 160, 5, 'drink3.png'],
-    ['オレンジジュース', 150, 12, 'drink4.png'],
-    ['ひやしあめ', 180, 3, 'drink5.png'],
-    ['三ツ矢サイダー風', 150, 15, 'drink6.png'],
-    ['とろけるピーチ', 170, 7, 'drink7.png'],
-    ['つめた〜いお水', 110, 24, 'drink8.png'],
-    ['濃厚乳酸菌', 200, 4, 'drink9.png'],
-    ['ブラックコーヒー', 140, 10, 'drink10.png'], // ←拡張子pngに統一(ファイル名に合わせてください)
-    ['ミネラルウォーター', 100, 20, 'drink11.png'],
-    ['マミー風ドリンク', 160, 6, 'drink12.png']
+    ['コーラ', 130, 10, 'drink1.png'],
+    ['ヤクルト', 140, 8, 'drink2.png'],
+    ['あったか〜いお茶', 160, 5, 'drink3.png'],
+    ['コーヒー', 150, 12, 'drink4.png'],
+    ['つめた〜い水', 180, 3, 'drink5.png'],
+    ['ジャスミン茶', 150, 15, 'drink6.png'],
+    ['ひやしあめ', 170, 7, 'drink7.png'],
+    ['オレンジジュース', 110, 24, 'drink8.png'],
+    ['ソーダ', 200, 4, 'drink9.png'],
+    ['ネクター', 140, 10, 'drink10.png'], // ←拡張子pngに統一(ファイル名に合わせてください)
+    ['麦茶', 100, 20, 'drink11.png'],
+    ['なっちゃんオレンジ', 160, 6, 'drink12.png']
   ];
   for (const item of items) db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', item);
 }
