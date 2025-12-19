@@ -44,12 +44,31 @@ body {
   padding: 5px;
   border-radius: 5px;
   position: relative;
+  /* 高さ調整のために少し余裕を持たせる */
+  justify-content: space-between;
 }
 
 .product-img {
   width: 60px;
   height: 80px;
   object-fit: contain;
+  margin-bottom: 5px;
+}
+
+/* ★追加: 商品名の文字サイズ調整 */
+.product-name {
+  font-size: 0.7rem;
+  text-align: center;
+  margin-bottom: 2px;
+  height: 2em; /* 2行分確保してガタツキ防止 */
+  overflow: hidden;
+}
+
+/* ★追加: 値段表示のデザイン */
+.product-price {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.9rem;
   margin-bottom: 5px;
 }
 
@@ -63,7 +82,7 @@ body {
   border: 2px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
-  margin-top: auto;
+  /* margin-top: auto; ←削除してレイアウト自然に */
   font-weight: bold;
   transition: all 0.2s;
 }
@@ -227,4 +246,25 @@ body {
 .drop-animation {
   width: 80px; /* 画像の大きさ */
   height: auto;
+  animation: drop 0.5s ease-out; /* 落ちるアニメーションを追加 */
+}
+
+@keyframes drop {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ★追加: クリックできるアイテムのカーソル */
+.clickable-item {
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.clickable-item:active {
+  transform: scale(0.9);
 }

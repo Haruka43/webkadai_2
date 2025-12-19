@@ -17,17 +17,22 @@ async function loadProducts() {
       const div = document.createElement('div');
       div.className = 'product-item';
 
+      // ★変更点1: ボタンの中に値段を書かず、「購入」にするため、
+      // ボタンの上に値段表示用の div を追加しました。
       div.innerHTML = `
             <img src="${product.image}" alt="${product.name}" class="product-img">
             ${isSoldOut ? '<div class="sold-out-overlay">売切</div>' : ''}
-            <div style="font-size:0.7rem; font-weight:bold;">${product.price}円</div>
             
+            <div class="product-name">${product.name}</div>
+            
+            <div class="product-price">${product.price}円</div>
+
             <button 
                 onclick="buy(${product.id}, ${product.price}, '${product.image}')" 
                 class="buy-btn ${canBuy ? 'can-buy' : ''}" 
                 ${isSoldOut ? 'disabled' : ''}
             >
-                ${isSoldOut ? '×' : product.price}
+                ${isSoldOut ? '×' : '購入'}
             </button>
           `;
       container.appendChild(div);
@@ -43,8 +48,7 @@ async function loadProducts() {
 // お金を入れる処理
 function insertCoin(amount) {
   currentMoney += amount;
-  // 画面を再描画（ボタンを光らせるため）
-  loadProducts();
+  loadProducts(); // 画面を更新（ボタンを光らせるため）
 }
 
 // おつり（リセット）
@@ -58,7 +62,6 @@ function returnMoney() {
 
 // 購入処理
 async function buy(id, price, imageSrc) {
-  // お金チェック
   if (currentMoney < price) {
     alert('お金が足りません！');
     return;
@@ -71,14 +74,27 @@ async function buy(id, price, imageSrc) {
   });
 
   if (res.ok) {
-    // 1. お金を減らす
     currentMoney -= price;
 
-    // 2. 「ガコン！」と落ちてくるアニメーション
+    // ★変更点2: 出てきた商品をクリックで消す処理
     const slot = document.getElementById('dropped-product');
-    slot.innerHTML = `<img src="${imageSrc}" class="drop-animation">`;
 
-    // 3. 画面更新
+    // 中身を空にする
+    slot.innerHTML = '';
+
+    // 画像要素を作る
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.className = 'drop-animation clickable-item'; // CSSで指マークにするクラスを追加
+
+    // クリックしたら消えるイベントを追加
+    img.onclick = function () {
+      this.remove();
+    };
+
+    // 画面に追加
+    slot.appendChild(img);
+
     loadProducts();
   } else {
     alert('売り切れです');
