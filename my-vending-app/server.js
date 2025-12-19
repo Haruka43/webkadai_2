@@ -149,7 +149,7 @@ serve(async (req) => {
   // ファイル配信
   try {
     const path = url.pathname === '/' ? '/index.html' : url.pathname;
-    const file = await Deno.readFile(`.${path}`);
+    const file = await Deno.readFile(new URL('.' + path, import.meta.url));
     const headers = {};
     if (path.endsWith('.html')) headers['content-type'] = 'text/html';
     if (path.endsWith('.css')) headers['content-type'] = 'text/css';
