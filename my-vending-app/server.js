@@ -91,7 +91,7 @@ serve(async (req) => {
   // API以外のURLに来たら、自動でファイルを探して返してくれる便利な機能
   // これなら「パスが違う」というミスが起きません
   return serveDir(req, {
-    fsRoot: '.', // 今の場所にあるファイルを探す
+    fsRoot: 'public',
     urlRoot: '', // URLそのまま
     enableCors: true // スマホ等からも見れるように許可
   });
