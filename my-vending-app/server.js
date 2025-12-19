@@ -92,7 +92,7 @@ serve(async (req) => {
   // これなら「パスが違う」というミスが起きません
   return serveDir(req, {
     fsRoot: 'public',
-    urlRoot: '', // URLそのまま
-    enableCors: true // スマホ等からも見れるように許可
+    urlRoot: '',
+    enableCors: true
   });
 });
