@@ -4,7 +4,7 @@ import { serve } from 'https://deno.land/std@0.140.0/http/server.ts';
 // --------------------------------------------------
 // 1. データベースの準備
 // --------------------------------------------------
-const db = new DB('vending.db');
+const db = new DB();
 
 // 商品テーブル
 db.query(`
