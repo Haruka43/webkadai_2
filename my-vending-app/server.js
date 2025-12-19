@@ -33,75 +33,49 @@ const count = db.query('SELECT COUNT(*) FROM products')[0][0];
 if (count === 0) {
   console.log('初期データを投入します...');
   // ※ファイル名は現在のあなたの環境に合わせています
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', ['コーラ', 130, 10, 'drink1.png']);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', ['ヤクルト', 140, 8, 'drink2.png']);
   db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
     'あったか〜いお茶',
-    130,
-    10,
-    'drink1.png'
-  ]);
-  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    'ジャスミンティー',
-    140,
-    8,
-    'drink2.png'
-  ]);
-  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    'クラシックコーラ',
     160,
     5,
     'drink3.png'
   ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', ['コーヒー', 150, 12, 'drink4.png']);
   db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    'オレンジジュース',
-    150,
-    12,
-    'drink4.png'
-  ]);
-  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    'ひやしあめ',
+    'つめた〜い水',
     180,
     3,
     'drink5.png'
   ]);
   db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    '三ツ矢サイダー風',
+    'ジャスミン茶',
     150,
     15,
     'drink6.png'
   ]);
   db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    'とろけるピーチ',
+    'ひやしあめ',
     170,
     7,
     'drink7.png'
   ]);
   db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    'つめた〜いお水',
+    'オレンジジュース',
     110,
     24,
     'drink8.png'
   ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', ['ソーダ', 200, 4, 'drink9.png']);
   db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    '濃厚乳酸菌',
-    200,
-    4,
-    'drink9.png'
-  ]);
-  // drink10はjpegでしたね
-  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    'ブラックコーヒー',
+    'ネクター',
     140,
     10,
-    'drink10.jpeg'
+    'drink10.png'
   ]);
+  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', ['麦茶', 100, 20, 'drink11.png']);
   db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    'ミネラルウォーター',
-    100,
-    20,
-    'drink11.png'
-  ]);
-  db.query('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)', [
-    'マミー風ドリンク',
+    'なっちゃんオレンジ',
     160,
     6,
     'drink12.png'
