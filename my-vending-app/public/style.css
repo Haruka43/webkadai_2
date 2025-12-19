@@ -1,6 +1,6 @@
 /* --- 全体設定 --- */
 body {
-  background-color: #ffffff; /* 白背景 */
+  background-color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -53,7 +53,7 @@ body {
   margin-bottom: 5px;
 }
 
-/* 自販機のボタン（白背景） */
+/* 自販機のボタン */
 .buy-btn {
   width: 80%;
   padding: 5px 4px;
@@ -196,29 +196,6 @@ body {
   cursor: pointer;
 }
 
-.drop-animation {
-  width: 80px;
-  height: auto;
-  animation: drop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes drop {
-  0% {
-    transform: translateY(-150px) rotate(10deg);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(0) rotate(-5deg);
-    opacity: 1;
-  }
-  80% {
-    transform: translateY(-10px) rotate(0deg);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
 /* 管理者ボタン */
 .admin-area {
   margin-top: 30px;
@@ -245,4 +222,9 @@ body {
 .admin-btn:hover {
   background-color: #555;
   transform: translateY(-2px);
+}
+
+.drop-animation {
+  width: 80px; /* 画像の大きさ */
+  height: auto;
 }
